@@ -1,0 +1,76 @@
+*{font-family: Arial, sans-serif; font-size: 16px;}
+
+.main{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+/*Generic Note Class*/
+.note, .addnote, .inputnote{
+    position: relative;
+    width: calc(100% - 1rem);
+    padding: 1rem 0;
+    padding-left: 1rem;
+}
+.note:nth-child(even){background-color: rgb(133, 236, 236);}
+.note:nth-child(odd){background-color: rgb(245, 211, 149);}
+
+/*Styling for the input*/
+.inputnote{
+    padding:0; 
+    padding-left: 0.7rem; 
+    width: calc(100% - 0.7rem);
+    background-color: rgb(37, 143, 241);
+}
+.input{
+    padding: 1rem 0;
+    padding-left: 0.3rem;
+    border: 0;
+    background-color: rgb(202, 255, 255);
+    width: calc(100% - 1rem);
+}
+.input:focus-visible{
+    border: none;
+}
+/*Styling for the functional note*/
+.addnote{
+    background-color: rgb(191, 255, 166);
+    cursor: pointer;
+}
+.addnote > p{
+    color: grey;
+    font-style: italic;
+}
+
+.pencil{
+    fill:none;
+    stroke:rgb(58, 56, 56);
+    stroke-width: 3px;
+    stroke-linecap:butt;
+    stroke-linejoin:miter;
+    stroke-opacity:1;
+    display: inline;
+    padding:0;
+    margin:0;
+    margin-right: 0.5rem;
+}
+
+/*Overlay*/
+.overlay{
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    grid-template-columns: 1fr 2fr 1fr;
+    z-index: 1;
+}
+.overlay > div{
+    border: 1px dotted red;
+    width: 100%;
+}
+
+/*For Show/Hide Toggle*/
+.hide{
+    display: none;
+}
