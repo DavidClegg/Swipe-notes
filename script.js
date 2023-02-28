@@ -61,7 +61,7 @@ function mousemove(e){
     console.log("Mouse Move");
     let x = (currentPosition - e.clientX)*-1;
     e.target.style.setProperty("left", x+"px");
-    e.target.innerText = e.target.offsetLeft;
+    //e.target.innerText = e.target.offsetLeft;
     if(e.target.offsetLeft > maxWidth/4){ // move right over 25%
         e.target.style.setProperty("background", `red`)
     }
@@ -78,12 +78,12 @@ function mouseup(e){
         e.target.style.setProperty("left", maxWidth/4+"px")
         // set state right
     } else if(e.target.offsetLeft < -(maxWidth/4)){ // move left over 25%
-        e.target.style.setProperty("left", -(maxWidth/4)+"px")
+        e.target.style.setProperty("left", "0px")//-(maxWidth/4)+"px")
         // set state left
+        e.target.style.setProperty("text-decoration","line-through")
     } else {
         e.target.style.setProperty("left", "0px")
     }
-
 
     e.target.removeEventListener("mousemove", mousemove);
     e.target.removeEventListener("mouseup", mouseup);
@@ -117,22 +117,23 @@ function toggleStyles(){
 }
 function submitNote(){
     addNoteToNotes();
-    updateHTML();
+    updateHTML(inputbox.value);
     inputnote.removeEventListener("keydown", enterListener)
     inputbox.value = "";
     toggleStyles();
 }
 
 function addNoteToNotes(){
-
+    // This is a function to add the note to the notes array.
 }
 
-function updateHTML(){
+function updateHTML(text){
     let note = document.createElement("div");
     note.classList.add("note");
     note.dataset.state = "New Note";
-    note.innerText = inputbox.value;
+    note.innerText = text;
     document.querySelector(".main").appendChild(note);
+    note.addEventListener("mousedown", addMouseListener);
 }
 
 function enterListener(e){
