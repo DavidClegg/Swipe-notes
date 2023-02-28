@@ -102,20 +102,43 @@ function mouseup(e){
  * > show add :: toggle
  */
 
+const addbutton = document.querySelector(".addnote");
+const inputnote = document.querySelector(".inputnote");
+const inputbox = document.querySelector(".inputnote input");
+
 function addClick(){
-    toggleStyles()
-    submitNote()
-    toggleStyles()
+    toggleStyles();
+    inputbox.focus();
+    inputnote.addEventListener("keydown", enterListener);
 }
 function toggleStyles(){
-    hide()
-    show()
+    addbutton.classList.toggle("hide");
+    inputnote.classList.toggle("hide");
 }
 function submitNote(){
-    addNoteToNotes()
-    updateHTML()
+    addNoteToNotes();
+    updateHTML();
+    inputnote.removeEventListener("keydown", enterListener)
+    inputbox.value = "";
+    toggleStyles();
+}
+
+function addNoteToNotes(){
+
 }
 
 function updateHTML(){
-    
+    let note = document.createElement("div");
+    note.classList.add("note");
+    note.dataset.state = "New Note";
+    note.innerText = inputbox.value;
+    document.querySelector(".main").appendChild(note);
+}
+
+function enterListener(e){
+    if(e.key == "Enter"){
+        console.log(e)
+        console.log("ADD")
+        submitNote();
+    }
 }

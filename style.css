@@ -22,6 +22,7 @@
     padding-left: 0.7rem; 
     width: calc(100% - 0.7rem);
     background-color: rgb(37, 143, 241);
+    order: 1;
 }
 .input{
     padding: 1rem 0;
@@ -37,6 +38,7 @@
 .addnote{
     background-color: rgb(191, 255, 166);
     cursor: pointer;
+    order: 2;
 }
 .addnote > p{
     color: grey;
