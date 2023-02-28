@@ -11,3 +11,6 @@ Still to do:
 - touch swipe
 - save/load
 - edit and delete
+
+
+<a href="https://davidclegg.github.io/Swipe-notes/">Link to the working web version</a>
