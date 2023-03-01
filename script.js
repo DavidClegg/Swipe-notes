@@ -62,6 +62,7 @@ function addMouseListener(e){
     e.target.addEventListener("mouseup", mouseup);
 }
 
+
 function mousemove(e){
     //https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
     console.log("Mouse Move");
@@ -176,6 +177,7 @@ function updateHTML(text){
     container.appendChild(buttons);
     document.querySelector(".main").appendChild(container);
     note.addEventListener("mousedown", addMouseListener);
+    addTouchEvent(note)
     //note.addEventListener("click", e=>{
     //    e.target.classList.toggle("crossoff")
     //})
@@ -255,3 +257,108 @@ function baddelete(ele){
 }
 
 naiveReloader()
+
+// touch events
+function addTouchEvent(element){
+        console.log("Added Touch Events")
+    element.addEventListener("touchstart", touchstartfunction);
+}
+
+function touchstartfunction(e){
+    e.preventDefault()
+    console.log("Touch Start");
+    console.log(e);
+    const start = e.touches[0].pageX;
+    e.target.addEventListener("touchmove", (event)=>{
+        event.preventDefault()
+        console.log("Touch Move");
+        console.log(event);
+        let x = event.changedTouches[0].pageX - start;
+        event.target.style.setProperty("left", x+"px");
+        
+        if(e.target.offsetLeft > multiple){ // move right over 25%
+            console.log("move right")
+            e.target.style.setProperty("background", "#00f")
+        } else if(e.target.offsetLeft < -(multiple)){ // move left over 25%
+            console.log("move left")
+            e.target.style.setProperty("background", "#f00")
+        } else {
+            console.log("move center")
+            e.target.style.setProperty("background", "#0f0")
+        }
+        
+    });
+    e.target.addEventListener("touchend", (event) => {
+        event.preventDefault()
+        console.log(event);
+        let difference = event.changedTouches[0].pageX - start;
+        console.log(difference);
+        if(difference > multiple){ // move right over 25%
+            console.log("stick right")
+            e.target.style.setProperty("left", multiple+"px")
+            // set state right
+            e.target.dataset.state = "Right"
+        } else if(difference < -(multiple)){ // move left over 25%
+            console.log("stick left")
+            e.target.style.setProperty("left", -(multiple)+"px")
+            // set state left
+            e.target.dataset.state = "Left"
+        } else if (difference < Math.abs(10) && e.target.dataset.state == "Center") {
+            console.log("no move")
+            // trigger this based on state
+            e.target.classList.toggle("crossoff");
+            e.target.style.setProperty("left", "0px")
+        } else {
+            console.log("stick center")
+            e.target.style.setProperty("left", "0px")
+            // set state center
+            e.target.dataset.state = "Center"
+        }
+
+    });
+
+}
+/*
+// This is my previous listener from an older project
+box.addEventListener("touchstart", e=>{
+    // Starting X value
+    var initX = e.touches[0].pageX;
+    var endX = initX;
+
+    e.target.addEventListener("touchmove", e=>{
+        // This is the constant moving div effect
+        var i;
+        var x;
+        for(i in e.changedTouches)
+        {
+            x = e.changedTouches[i].pageX;
+            if(i%3==0)
+            {
+            endX = x;
+            e.target.style.setProperty("left", `${x-initX}px`)
+            let cx = e.target.offsetLeft;
+            let cw = {p:e.target.offsetWidth*0.3, n:-(e.target.offsetWidth*0.3)};
+            if(cx > cw.p){"right"} 
+            else if( cx < cw.n){"left"}
+            else {"center"}
+            }
+        }
+    });
+
+    e.target.addEventListener("touchend", e=>{
+        // And this is for the logic once the touch has ended
+        let thisBox = e.target;
+        let offset = thisBox.offsetLeft;
+        let boxWidth = thisBox.offsetWidth;
+        if(initX == endX)
+        {
+            // not moved
+        }
+        if(offset > boxWidth*0.3 || offset < -(boxWidth*0.3))
+        {
+            thisBox.remove();
+        } else {
+            thisBox.style.left = 0;
+        }
+    });
+})*/

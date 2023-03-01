@@ -1,5 +1,7 @@
 *{font-family: Arial, sans-serif; font-size: 16px;}
-
+html{
+    overflow-x: hidden;
+}
 .main{
     width: 100%;
     display: flex;
