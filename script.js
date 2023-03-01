@@ -37,6 +37,9 @@ function test(){
 
 // MOVE NOTES
 let maxWidth = document.querySelector(".main").clientWidth;
+let multiple = maxWidth/9; 
+// The edit and delete functions are revealed at some division of the max width
+// default is 4. this means that they appear when a note is moved 25% across the screen
 let currentPosition = 0;
 let notes = document.querySelectorAll(".note");
 [...notes].forEach( note =>{
@@ -44,13 +47,16 @@ let notes = document.querySelectorAll(".note");
     // mousemove / touchmove
     // mouseup / touchend?
     note.addEventListener("mousedown", addMouseListener);
+    note.addEventListener("click", e=>{
+        e.target.classList.toggle("crossoff")
+    })
 });
 
 function addMouseListener(e){
     //https://developer.mozilla.org/en-US/docs/Web/API/Element/mousedown_event
     console.log("Mouse Down")
     console.log(e);
-    e.target.style.setProperty("background", `#ddd`)
+    //e.target.style.setProperty("background", `#ddd`)
     currentPosition = e.clientX;
     e.target.addEventListener("mousemove", mousemove);
     e.target.addEventListener("mouseup", mouseup);
@@ -62,27 +68,37 @@ function mousemove(e){
     let x = (currentPosition - e.clientX)*-1;
     e.target.style.setProperty("left", x+"px");
     //e.target.innerText = e.target.offsetLeft;
-    if(e.target.offsetLeft > maxWidth/4){ // move right over 25%
-        e.target.style.setProperty("background", `red`)
+    if(e.target.offsetLeft > multiple){ // move right over 25%
+        e.target.style.setProperty("background", `cyan`) 
+        //e.target.classList.toggle("editing") // should be pale
     }
-    if(e.target.offsetLeft < -(maxWidth/4)){ // move left over 25%
-        e.target.style.setProperty("background", `blue`)
+    if(e.target.offsetLeft < -(multiple)){ // move left over 25%
+        e.target.style.setProperty("background", `brown`) // should be pale
+        //e.target.classList.toggle("deleting")
     }
 }
 
 function mouseup(e){
     //https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseup_event
     console.log("Move Up");
-
-    if(e.target.offsetLeft > maxWidth/4){ // move right over 25%
-        e.target.style.setProperty("left", maxWidth/4+"px")
+    console.log(e.target.offsetLeft)
+    if(e.target.offsetLeft > multiple){ // move right over 25%
+        e.target.style.setProperty("left", multiple+"px")
         // set state right
-    } else if(e.target.offsetLeft < -(maxWidth/4)){ // move left over 25%
-        e.target.style.setProperty("left", "0px")//-(maxWidth/4)+"px")
+        e.target.dataset.state = "Right"
+    } else if(e.target.offsetLeft < -(multiple)){ // move left over 25%
+        e.target.style.setProperty("left", -(multiple)+"px")
         // set state left
-        e.target.style.setProperty("text-decoration","line-through")
+        e.target.dataset.state = "Left"
+    } else if (e.target.offsetLeft < Math.abs(10) && e.target.dataset.state == "Center") {
+        // trigger this based on state
+        e.target.classList.toggle("crossoff")
+        e.target.style.setProperty("left", "0px")
     } else {
         e.target.style.setProperty("left", "0px")
+        // set state center
+        e.target.dataset.state = "Center"
+        //e.target.classList.toggle("crossoff");
     }
 
     e.target.removeEventListener("mousemove", mousemove);
@@ -128,12 +144,41 @@ function addNoteToNotes(){
 }
 
 function updateHTML(text){
+    if(text == ""){
+        text = "New Note";
+    };
+    let container = document.createElement("div");
+    container.classList.add("container");
+    // note element
     let note = document.createElement("div");
     note.classList.add("note");
-    note.dataset.state = "New Note";
+    note.dataset.state = "Center";
     note.innerText = text;
-    document.querySelector(".main").appendChild(note);
+    container.appendChild(note);
+    // buttons
+    let buttons = document.createElement("div");
+    buttons.classList.add("subitem");
+    buttons.classList.add("before");
+    // edit 
+    let edit = document.createElement("div");
+    edit.classList.add("edit");
+    //edit.attributes.onclick = "badedit(this)";
+    edit.addEventListener("click", badedit);
+    edit.innerText = "Edit"
+    buttons.appendChild(edit);
+    // delete elemenet : delele
+    let delele = document.createElement("div"); 
+    delele.classList.add("del");
+    //delele.attributes.onclick = "baddelete(this)";
+    delele.addEventListener("click", baddelete);
+    delele.innerText = "Delete"
+    buttons.appendChild(delele);
+    container.appendChild(buttons);
+    document.querySelector(".main").appendChild(container);
     note.addEventListener("mousedown", addMouseListener);
+    //note.addEventListener("click", e=>{
+    //    e.target.classList.toggle("crossoff")
+    //})
 }
 
 function enterListener(e){
@@ -143,3 +188,70 @@ function enterListener(e){
         submitNote();
     }
 }
+
+function loadNotes(){
+    let notes = localStorage.getItem("notes");
+    notes = notes.split(",");
+    notes.forEach(note => {updateHTML(note)});
+}
+
+function saveNotes(notesArray){
+    let notes = notesArray.join(",");
+    localStorage.setItem("notes", notes);
+}
+
+function naiveReloader(){
+    // This is a pretty petty way to manage the syncing of the visual notes and the notes array in memory
+    /// Basically I just delete the entire visual list and then regenerate it
+    /// This seems like a bad solution because 
+    let notes = [
+        "You can click notes to mark them off",
+        "You can swipe a note to the right to reveal the Edit button",
+        "Or swipe right to Delete",
+        "And you can add your own notes with the green button below"
+    ];
+
+    for (let index = 0; index < notes.length; index++) {
+        const text = notes[index];
+        updateHTML(text)
+    }
+}
+
+function badedit(ele){
+    // !!! This is a temporary script to test a bad idea for editing
+    let parent = ele.target.parentElement.parentElement;
+    let target = parent.children[0];
+    let inputNode = document.createElement("input");
+    inputNode.value = target.innerText;
+    inputNode.classList.add("input");
+    inputNode.classList.add("note");
+    inputNode.classList.add("inputBackground");
+    target.before(inputNode);
+    inputNode.focus();
+    inputNode.addEventListener("keydown", badenterlistener)
+    target.remove();
+}
+
+function badenterlistener(e){
+    // This is basically my enter listener, but update for my badedit input
+    if(e.key == "Enter"){
+        console.log(e)
+        console.log("ADD")
+        let inputNode = e.target;
+        let parent = inputNode.parentElement;
+        let target = document.createElement("div");
+        target.classList.add("note");
+        target.dataset.state = "Newly Edited";
+        target.innerText = inputNode.value;
+        inputNode.before(target);
+        inputNode.remove();
+        target.addEventListener("mousedown", addMouseListener);
+    }
+}
+
+function baddelete(ele){
+    let parent = ele.target.parentElement.parentElement;
+    parent.remove();
+}
+
+naiveReloader()
