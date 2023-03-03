@@ -1,7 +1,7 @@
 # Swipe notes
  Simple implementation of swipe gesture for a note app
 
-02-28 20:38 - Checkpoint:
+03-03 20:04 - Rewrite:
 - notes added
 - mouse swipe functions
 - outline for adding notes
@@ -14,14 +14,3 @@ Still to do:
 
 
 <a href="https://davidclegg.github.io/Swipe-notes/">Link to the working web version</a>
-
----
-
-Visuals update TODO:
-- Notes that take up more than one line appear connected to the next note rather than evenly spaces
-- Input should be scrolled into view on mobile
-- Swiping right slightly on the desktop view doesn't correctly strike the note (minor issue)
-- Can't scroll up on mobile if there is more than a screen of notes
-- TODO Title
-- TODO Better colours
-- Code cleanup
