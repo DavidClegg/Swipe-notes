@@ -20,7 +20,7 @@ Still to do:
 Visuals update TODO:
 - Notes that take up more than one line appear connected to the next note rather than evenly spaces
 - Input should be scrolled into view on mobile
-- Swiping right slightly on desktop doesn't correctly strike the note (minor issue)
+- Swiping right slightly on the desktop view doesn't correctly strike the note (minor issue)
 - Can't scroll up on mobile if there is more than a screen of notes
 - TODO Title
 - TODO Better colours

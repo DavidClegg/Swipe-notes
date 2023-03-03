@@ -1,4 +1,4 @@
-*{font-family: Arial, sans-serif; font-size: 16px;}
+*{font-family: Verdana, Arial, sans-serif; font-size: 16px;}
 html{
     overflow-x: hidden;
 }
@@ -16,6 +16,7 @@ html{
     padding-left: 1rem;
     z-index: 2;
 }
+.note{border: 1px solid green;}
 .note:nth-child(even){background-color: rgb(133, 236, 236);}
 .note:nth-child(odd){background-color: rgb(245, 211, 149);}
 

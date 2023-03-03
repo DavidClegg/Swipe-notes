@@ -1,0 +1,255 @@
+<!-- This time without buttons -->
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<style>
+    :root{
+        --noteCol: rgb(228, 231, 231);
+        --strikeCol:rgb(194, 230, 247);
+        --editCol:#ffe6b7;
+        --delCol:rgb(247, 210, 205);
+        --inputCol:#ffe6b7;
+        --addCol:rgb(216, 250, 225);
+        --bgCol: rgb(252, 252, 252);
+    }
+    *{font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18px;overflow-x:hidden;}
+    .note{
+        all:unset;
+        padding: 30px;
+        border-radius: 5px;
+        transition: background 500ms ease-in-out;
+        background: var(--noteCol);
+    }
+    .main{
+        background: linear-gradient(0.25turn, var(--bgCol) 31%,var(--strikeCol) 32%, var(--bgCol) 33% 66%, var(--delCol) 67%, var(--bgCol) 68%);
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .text{
+        position: relative;
+    }
+    .input{
+        background:var(--inputCol);
+    }
+    .input::placeholder{font-style: italic;}
+    .add{
+        background:var(--addCol);
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+    }
+    .strike{text-decoration: line-through; text-decoration-thickness: 0.2rem;}
+    .hide{display: none;}
+</style>
+<body class="main">
+    <input type="text" class="note input hide" placeholder="> This is a note" style="order: 1;">
+    <input type="button" class="note add" value="New Note +" onclick="addNote()" style="order: 2;">
+</body>
+<script>
+    const main = document.querySelector(".main");
+    const input = document.querySelector(".input");
+    const addbtn = document.querySelector(".add");
+
+    let notes = [
+        "Welcome to my note taker",
+        "You can swipe notes right to strike them off",
+        "You can swipe notes left to delete them",
+        "You can tap notes to edit them",
+        "And you can add notes with the button below",
+    ];
+    notes.forEach(createNote)
+    // initial text box input handler
+    function inputbox(text = ""){
+        createNote(text);
+        input.value = "";
+        input.classList.add("hide")
+        addbtn.classList.remove("hide")
+    }
+    input.addEventListener("keydown", e =>{
+        if(e.key == "Enter"){
+            inputbox(input.value);
+        }
+    })
+
+    // Add button handler
+    addbtn.addEventListener("click", addbtnfunction);
+    function addbtnfunction(){
+        input.classList.remove("hide");
+        input.focus();
+        addbtn.classList.add("hide");
+    }
+
+    function createNote(text){
+        if(text == ""){
+            text = "New Note";
+        };
+        let note = document.createElement("div");
+        note.classList.add("note");
+        note.classList.add("text");
+        note.innerText = text;
+        note.dataset.state = "edit";
+        note.dataset.strike = "false";
+        note.dataset.moved = "false";
+        // add event listeners
+        note.addEventListener("mousedown", mousedown);
+        note.addEventListener("touchstart", touchstart);
+        main.appendChild(note);
+    }
+
+    // edit 
+
+    function edit(element){
+        let text = element.innerText;
+        let input = document.createElement("input");
+        input.type = "text";
+        input.classList.add("note");
+        input.classList.add("input");
+        input.value = text;
+        element.before(input);
+        input.focus();
+        element.remove();
+        input.addEventListener("keydown", submit)
+    }
+
+    function submit(event){
+        if(event.key == "Enter"){
+            let element = event.target;
+            let text = element.value;
+            let note = document.createElement("div");
+            note.classList.add("note");
+            note.classList.add("text");
+            note.innerText = text;
+            note.dataset.state = "edit";
+            note.dataset.strike = "false";
+            note.dataset.moved = "false";
+            element.before(note);
+            note.addEventListener("mousedown", mousedown);
+            note.addEventListener("touchstart", touchstart);
+            element.remove();
+        }
+    }
+
+    function mousedown(event){
+        console.log(`Mouse Down`)
+        let note = event.target;
+        note.dataset.start = event.clientX;
+        note.dataset.moved = "false";
+        note.addEventListener("mousemove", mousemove);
+        note.addEventListener("mouseup", mouseup);
+        
+        note.classList.remove("strike");
+        note.dataset.strike = "false";
+        note.dataset.state = "edit"
+    };
+    function mousemove(event){
+        console.log(`Mouse Move`);
+        let note = event.target;
+        note.dataset.moved = "true";
+        let start = note.dataset.start;
+        let current = event.clientX
+        let difference = current - start;
+        let width = note.offsetWidth;
+        note.style.setProperty("left",current-start);
+        if(difference < -(width/3)){
+            note.style.setProperty("background", "rgb(247, 210, 205)");
+            note.dataset.state = "delete"
+        } else if(difference > (width/4)){
+            note.style.setProperty("background", "rgb(194, 230, 247)");
+            note.dataset.state = "strike"
+        } else {
+            note.style.setProperty("background", "#ffe6b7");
+            note.dataset.state = "edit"
+        }
+    };
+    function mouseup(event){
+        console.log(`Mouse Up`);
+        let note = event.target;
+        let state = note.dataset.state;
+
+        if(state == "delete"){
+            // delete
+            note.remove();
+        }
+        if(state == "strike"){
+            if(note.dataset.strike == "false"){
+                note.classList.add("strike");
+                note.dataset.strike = "true";
+            } else {
+                note.classList.remove("strike");
+                note.dataset.strike = "false";
+            }
+            note.style.setProperty("left", 0)
+        }
+        if(state == "edit"){
+            note.style.setProperty("left", 0)
+            //edit
+            if(note.dataset.moved == "false"){
+                edit(note);
+            }
+        }
+        note.style.setProperty("background", "var(--noteCol)");
+        note.removeEventListener("mousemove", mousemove);
+        note.removeEventListener("mouseup", mouseup);
+    };
+    function touchstart(event){
+        console.log(`Touch Start`)
+        let note = event.target;
+        note.dataset.start = event.touches[0].pageX;
+        note.dataset.moved = "false";
+        note.addEventListener("touchmove", touchmove);
+        note.addEventListener("touchend", touchend);
+        
+        note.classList.remove("strike");
+        note.dataset.strike = "false";
+        note.dataset.state = "edit";
+    };
+    function touchmove(event){
+        console.log(`Touch Move`)
+        let note = event.target;
+        note.dataset.moved = "true";
+        let start = note.dataset.start;
+        let current = event.touches[0].pageX;
+        let difference = current - start;
+        let width = note.offsetWidth;
+        note.style.setProperty("left",current-start);
+        if(difference < -(width/3)){
+            note.style.setProperty("background", "rgb(247, 210, 205)");
+            note.dataset.state = "delete"
+        } else if(difference > (width/4)){
+            note.style.setProperty("background", "rgb(194, 230, 247)");
+            note.dataset.state = "strike"
+        } else {
+            note.style.setProperty("background", "#ffe6b7");
+            note.dataset.state = "edit"
+        }
+    };
+    function touchend(event){
+        console.log(`Touch End`)
+        let note = event.target;
+        let state = note.dataset.state;
+        if(state == "delete"){
+            // delete
+            note.remove();
+        }
+        if(state == "strike"){
+            if(note.dataset.strike == "false"){
+                note.classList.add("strike");
+                note.dataset.strike = "true";
+            } else {
+                note.classList.remove("strike");
+                note.dataset.strike = "false";
+            }
+            note.style.setProperty("left", 0)
+        }
+        if(state == "edit"){
+            note.style.setProperty("left", 0)
+            //edit
+            if(note.dataset.moved == "false"){
+                edit(note);
+            }
+        }
+        note.style.setProperty("background", "var(--noteCol)");
+        note.removeEventListener("touchmove", touchmove);
+        note.removeEventListener("touchend", touchend);
+    };
+
+</script>

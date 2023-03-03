@@ -1,0 +1,181 @@
+<!-- I don't like how I handled sliding in my main version.
+This attempt I'm going to try using flex or grid or something instead;
+
+I can't make a flex or grid with buttons with 0 width;
+
+Maybe I can have two layers (Note layer on top of button layer)
+And then simply slide the note layer from the left or right?
+
+Okay so the right/left psudo-elements feels like a good idea, but I need to rewrite the mouse events because I can't seem to remove the move events.
+
+So this seems like a more effective method of handling notes, so far.
+Next up:
+    Long notes (BROKE) (Position: absolute is the main problem)
+    Window full of notes (Fine on desktop)
+    Mobile scrolling (No touch implemented)
+ -->
+
+<style>
+    *{font-family: Verdana, Arial, sans-serif; font-size: 16px;}
+    p{all:unset;}
+    button{all:unset;}
+    main{display: flex; flex-direction: column; gap: 1rem;}
+    .container{
+        width: 100%;
+    }
+    .container p{
+        padding: 1rem;
+        width: 100%;
+        background: #ffa500;
+        padding-right: 0rem;
+    }
+    .container button{
+        padding: 1rem;
+    }
+    .note{
+        display: grid;
+        margin: 0rem;
+        width: 100%;
+        position: absolute;
+        grid-template-columns: auto 1fr auto;
+    }
+    .note > .left, .note > .right{max-width: 100px; transition: width 0ms ease-in-out;}
+    .note > p{width: calc(100% - 2rem);}
+    .buttonlayer{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+    .edit{
+        background: rgb(67, 206, 136);
+    }
+    .delete{
+        background: rgb(255, 114, 32);
+        text-align: end;
+    }
+    .strike{
+        text-decoration: line-through;
+        text-decoration-thickness: bold;
+    }
+</style>
+<body>
+    <main>
+        <section class="container">
+            <div class="note">
+                <div class="left"></div>
+                <p>This is the note</p>
+                <div class="right"></div>
+            </div>
+            <div class="buttonlayer">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        </section>
+        <section class="container">
+            <div class="note">
+                <div class="left"></div>
+                <p>This is the note</p>
+                <div class="right"></div>
+            </div>
+            <div class="buttonlayer">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        </section>
+        <section class="container">
+            <div class="note">
+                <div class="left"></div>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur dolore animi voluptatum deserunt, non quis. Facilis, qui quasi nesciunt dolorum blanditiis ad? Eius rerum deleniti repellat, soluta tenetur mollitia tempore!</p>
+                <div class="right"></div>
+            </div>
+            <div class="buttonlayer">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        </section>
+        <!--  -->
+    </main>
+</body>
+
+<script>
+    let notes = document.querySelectorAll(".note");
+    [...notes].forEach(note =>{
+        note.dataset.strike = "false";
+        note.dataset.focus = "center";
+        note.addEventListener("mousedown", mousedown);
+    })
+
+    function mousedown(event){
+        console.log(event)
+        console.log(`Down`)
+        let note = event.target.parentNode;
+        note.dataset.state = "start";
+        note.dataset.start = event.clientX;
+        note.addEventListener("mousemove", mousemove);
+        note.addEventListener("mouseup", mouseup);
+    }
+    function mousemove(event){
+        console.log(`Move`);
+        let note = event.target.parentNode;
+        note.dataset.state = "moving";
+        let start = note.dataset.start;
+        let current = event.clientX;
+        note.dataset.curret = current;
+        let left = note.querySelector(".left");
+        let right = note.querySelector(".right");
+        let difference;
+        let focus;
+        if(current >= start){
+            focus = left;
+            right.style.setProperty("width", `0px`);
+        } else if(current < start){
+            focus = right;
+            left.style.setProperty("width", `0px`);
+        };
+        difference = Math.abs(current - start);
+        focus.style.setProperty("width", `${difference}px`);
+        if(difference > 50){
+            note.dataset.focus = focus.className;
+        } else {
+            note.dataset.focus = "center";
+            
+        }
+    }
+    function mouseup(event){
+        console.log(`Up`)
+        let note = event.target.parentNode;
+        
+        let left = note.querySelector(".left");
+        let right = note.querySelector(".right");
+        
+        if(note.dataset.state == "start"){
+            left.style.setProperty("width", "0px");
+            right.style.setProperty("width", "0px");
+            if(note.dataset.focus == "center"){
+                if(note.dataset.strike == "false"){
+                    note.querySelector("p").classList.add("strike");
+                    note.dataset.strike = "true";
+                } else {
+                    note.querySelector("p").classList.remove("strike");
+                    note.dataset.strike = "false";
+                }
+            } else {
+                note.dataset.focus = "center";
+            }
+        }
+
+        if(note.dataset.focus == "left"){
+            left.style.setProperty("width", "100px");
+        } else if(note.dataset.focus == "right"){
+            right.style.setProperty("width", "100px");
+        } else {
+            left.style.setProperty("width", "0px");
+            right.style.setProperty("width", "0px");
+        }
+
+        note.dataset.state = "end";
+        
+        note.removeEventListener("mousemove", mousemove);
+        note.removeEventListener("mouseup", mouseup);
+    }
+
+</script>
