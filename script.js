@@ -21,11 +21,16 @@ function inputbox(text = ""){
     input.classList.add("hide")
     addbtn.classList.remove("hide")
 };
+// Added blur event to the input box
+// A blur event is called when an element loses focus
 input.addEventListener("keydown", e =>{
     if(e.key == "Enter"){
-        inputbox(input.value);
+        e.target.blur();
     }
 });
+input.addEventListener("blur", e=>{
+    inputbox(input.value);
+})
 
 // Add button handler
 addbtn.addEventListener("click", addbtnfunction);
@@ -66,17 +71,23 @@ function edit(element){
     element.before(input);
     input.focus();
     element.remove();
-    input.addEventListener("keydown", submit)
+    input.addEventListener("keydown", enterKey);
+    // Added blur event
+    // A blur event is called when an element loses focus
+    input.addEventListener("blur", submit);
 }
 
-function submit(event){
+function enterKey(event){
     if(event.key == "Enter"){
-        let element = event.target;
-        let text = element.value;
-        element.remove();
-        notes[element.dataset.index] = text;
-        save();
+        event.target.blur()
     }
+}
+function submit(event){
+    let element = event.target;
+    let text = element.value;
+    element.remove();
+    notes[element.dataset.index] = text;
+    save();
 }
 
 // Mouse Event Listeners

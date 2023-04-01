@@ -17,6 +17,7 @@
     border-radius: 5px;
     transition: background 500ms ease-in-out;
     background: var(--noteCol);
+    user-select: none;
 }
 .main, body{
     display: flex;
