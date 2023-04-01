@@ -11,12 +11,13 @@ let notes = [
     "And you can add notes with the button below",
 ];
 let index = 0;
+let activeIndex = -1;
 notes.forEach(createNote);
 
 // initial text box input handler
 function inputbox(text = ""){
     notes.push(text);
-    save();
+    save(input);
     input.value = "";
     input.classList.add("hide")
     addbtn.classList.remove("hide")
@@ -87,12 +88,13 @@ function submit(event){
     let text = element.value;
     element.remove();
     notes[element.dataset.index] = text;
-    save();
+    save(element);
 }
 
 // Mouse Event Listeners
 function mousedown(event){
     let note = event.target;
+    activeIndex = note.dataset.index;
     note.dataset.start = event.clientX;
     note.dataset.moved = "false";
     note.addEventListener("mousemove", mousemove);
@@ -129,7 +131,7 @@ function mouseup(event){
         // delete
         //note.remove();
         notes.splice(note.dataset.index, 1);
-        save();
+        save(note);
     }
     if(state == "strike"){
         if(note.dataset.strike == "false"){
@@ -190,7 +192,7 @@ function touchend(event){
         // delete
         //note.remove();
         notes.splice(note.dataset.index, 1);
-        save();
+        save(note);
     }
     if(state == "strike"){
         if(note.dataset.strike == "false"){
@@ -215,7 +217,10 @@ function touchend(event){
 };
 
 // Save and Load functions
-function save(){
+function save(element){
+    if(element.dataset.index == activeIndex){
+        activeIndex = -1
+    }
     localStorage.setItem("notes", notes.join("|||"));
     reload();
 }
@@ -232,5 +237,10 @@ function reload(){
     main.appendChild(addbtn);
     index = 0;
     notes.forEach(createNote);
+    if(activeIndex != -1){
+        let active = document.querySelector(`div[data-index='${activeIndex}']`);
+        edit(active);
+    } 
+
 }
 window.addEventListener("load", load);
